@@ -27,8 +27,8 @@ namespace LoopStation5._1
         public WaveIn waveSource = null;
         public WaveFileWriter waveFile = null;
 
-        public WaveOutEvent player = null;
-        public AudioFileReader audioFile = null;
+        public List<WaveOutEvent> playerList = new List<WaveOutEvent>();
+        public List<AudioFileReader> audioFileList = new List<AudioFileReader>();
 
         //Constructor
         public LoopStation(int loopstationID, bool isEmpty = false)
@@ -55,11 +55,28 @@ namespace LoopStation5._1
         {
             if (loopEvent == 0)
             {
-                if (args[0] == 0)
+                if (int.Parse(args[0].ToString()) == 0) //Attempt to stop after first record
                 {
+                    if (bool.Parse(args[1].ToString()))
+                    {
+                        StopRecord(true);
+                    } else
+                    {
+                        StopRecord(false);
+                    }
+                } else if (int.Parse(args[0].ToString()) == 1) //Attempt to start first record
+                {
+                    InitialRecord();
 
-                }
+                } else if(int.Parse(args[0].ToString()) == 2) //Play
+                {
+                    PlayHandeler();
+                } else if (int.Parse(args[0].ToString()) == 3) //Starts record while loop is active
+                {
+                    Record(false);
+                } 
                 
+
 
             } else if (loopEvent == 1)
             {
@@ -72,6 +89,8 @@ namespace LoopStation5._1
                 {
                     recordingTicks += 1;
                 }
+                PlayerController();
+
             } else if(loopEvent == 3)
             {
                 //Pushes a complete loop cycle
@@ -107,6 +126,8 @@ namespace LoopStation5._1
                 Directory.CreateDirectory(frmLoopstation.loopPath + loopStationID);
             }
 
+            playerList.Add(new WaveOutEvent());
+
             recordingTicks = 0;
             isRecording = true;
 
@@ -139,6 +160,8 @@ namespace LoopStation5._1
 
             //Stops recording
             waveSource.StopRecording();
+            audioFileList.Add(new AudioFileReader(frmLoopstation.loopPath + loopStationID + @"\" + recs[recs.Count - 1][0]));
+            playerList[playerList.Count - 1].Init(audioFileList[playerList.Count - 1]);
 
             //Continues to record if set to
             if (shouldContinue == true)
@@ -148,12 +171,30 @@ namespace LoopStation5._1
             } else
             {
                 isRecording = false;
+                frmLoopstation.UpdateRecButton(loopStationID, 2);
             }
         }
 
-        private void Play()
+        private void PlayHandeler()
         {
 
+        }
+
+        private void PlayerController()
+        {
+            for (int i = 0; i < recs.Count; i++)
+            {
+                if (int.Parse(recs[i][1].ToString()) == frmLoopstation.currentLoop)
+                {
+                    if (isRecording == true && recs.Count - 1 == i)
+                    {
+                        
+                    } else
+                    {
+                        playerList[i].Play();
+                    }
+                }
+            }
         }
 
         private void Pause()

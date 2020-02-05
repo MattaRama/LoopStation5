@@ -399,6 +399,7 @@
             // 
             // tmrTicks
             // 
+            this.tmrTicks.Enabled = true;
             this.tmrTicks.Interval = 1;
             this.tmrTicks.Tick += new System.EventHandler(this.TmrTicks_Tick);
             // 

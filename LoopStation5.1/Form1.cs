@@ -35,7 +35,8 @@ namespace LoopStation5._1
         private static Button[] playPauseButtons;
         private static Button[] editButtons;
         public static int[] buttonState = { 0, 0, 0, 0, 0 };
-        public static bool[] isHoldingAction = { false, false, false, false, false };
+        public static bool[] isHoldingRepeatAction = { false, false, false, false, false };
+        public static bool[] isHoldingStartAction = { false, false, false, false, false };
 
         public static void UpdateRecButton(int button, int state)
         {
@@ -98,6 +99,7 @@ namespace LoopStation5._1
         //Primary Timer
         private void TmrTicks_Tick(object sender, EventArgs e)
         {
+            Console.WriteLine("LoopStandard: " + loopStandard + " | LoopTicks" + currentLoop);
             //Handles loop increase
             if (loopRunning == true)
             {
@@ -110,12 +112,24 @@ namespace LoopStation5._1
                     //If a stop action was queued, it is executed here
                     for (int i = 0; i < lsArray.Count(); i++)
                     {
-                        if (isHoldingAction[i] == true)
+                        if (isHoldingRepeatAction[i] == true)
                         {
                             if (Boolean.Parse(loopStationConfig.configuration[0][1].ToString()) == false)
                             {
-                                lsArray[i].EventListener(0, new object[] { 0});
+                                lsArray[i].EventListener(0, new object[] { 0, false });
+                            } else
+                            {
+                                lsArray[i].EventListener(0, new object[] { 0, true });
                             }
+                        }
+                    }
+
+                    //If a start action was queued, it is executed here
+                    for (int i = 0; i < lsArray.Count(); i++)
+                    {
+                        if (isHoldingStartAction[i] == true)
+                        {
+                            lsArray[i].EventListener(0, new object[] { 1 });
                         }
                     }
                 }
@@ -174,38 +188,61 @@ namespace LoopStation5._1
         //Play & Record Button
         private void CmdPlayPause1_Click(object sender, EventArgs e)
         {
-            if (buttonState[0] == 4)
+            //ls1.EventListener(0, new object[] { 1 });
+            if (buttonState[0] == 0)
             {
-                isHoldingAction[0] = true;
+                if (loopRunning == true)
+                {
+                    isHoldingStartAction[0] = true;
+                } else
+                {
+                    ls1.EventListener(0, new object[] { 1 });
+                }
+
             }
+            else if (buttonState[0] == 1)
+            {
+                ls1.EventListener(0, new object[] { 2 });
+            }
+            else if (buttonState[0] == 2)
+            {
+                ls1.EventListener(0, new object[] { 3 });
+            }
+            else if (buttonState[0] == 3)
+            {
+                ls1.EventListener(0, new object[] { 0, false });
+            }
+            else if (buttonState[0] == 4)
+            {
+                if (loopRunning == true)
+                {
+                    isHoldingRepeatAction[0] = true;
+                }
+                else
+                {
+                    //ls1.EventListener(0, new object[] { 0, loopStationConfig.configuration[0][1] });
+                    ls1.EventListener(0, new object[] { 3 });
+                    Console.WriteLine("Yee");
+                    UpdateRecButton(1, 3);
+                }
+            }
+            Console.WriteLine("ButtonState: " + buttonState[0]);
         }
         private void CmdPlayPause2_Click(object sender, EventArgs e)
         {
-            if (buttonState[0] == 4)
-            {
-                isHoldingAction[1] = true;
-            }
+            
         }
         private void CmdPlayPause3_Click(object sender, EventArgs e)
         {
-            if (buttonState[0] == 4)
-            {
-                isHoldingAction[2] = true;
-            }
+            
         }
         private void CmdPlayPause4_Click(object sender, EventArgs e)
         {
-            if (buttonState[0] == 4)
-            {
-                isHoldingAction[3] = true;
-            }
+            
         }
         private void CmdPlayPause5_Click(object sender, EventArgs e)
         {
-            if (buttonState[0] == 4)
-            {
-                isHoldingAction[4] = true;
-            }
+            
         }
 
         //Pause Button
