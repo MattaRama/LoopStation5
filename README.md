@@ -1,2 +1,2 @@
-# Loopstation 5.1
+# Loopstation 5
  The 5th iteration of an audio loopstation
